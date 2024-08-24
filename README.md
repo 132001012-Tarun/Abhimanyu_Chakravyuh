@@ -57,6 +57,6 @@ PURPOSE OF THE CODE:
       This code helps determine whether Abhimanyu can cross all the circles in the Chakravyuh by fighting or skipping enemies and recharging when necessary. It uses dynamic programming to efficiently explore all possible combinations of fights, skips, and recharges to find a solution.
       Overall Time Complexity: O(n * a * b)
       Where:
-      n is the number of enemies.
-      a is the number of skips available.
+      n is the number of enemies,
+      a is the number of skips available,
       b is the number of recharges available.
