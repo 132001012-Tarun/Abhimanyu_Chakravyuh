@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+#include <functional>
+using namespace std;
+
+bool canAbhimanyuCrossChakravyuh(float p, vector<float>& enemies, int a, int b) {
+    int n = enemies.size();
+
+    // DP table initialized to -1 (indicating that the state has not been computed yet)
+    vector<vector<vector<int>>> dp(n, vector<vector<int>>(a + 1, vector<int>(b + 1, -1)));
+
+    // Helper function to use DP
+    function<bool(int, float, int, int)> tryCrossing = [&](int index, float currentPower, int skip, int recharge) -> bool {
+        if (index >= n) return true;  // Abhimanyu has successfully crossed all circles
+
+        // If this state has already been computed, return the stored result
+        if (dp[index][skip][recharge] != -1) {
+            return dp[index][skip][recharge] == 1;
+        }
+
+        // Option 1: Skip the current enemy
+        if (skip > 0 && tryCrossing(index + 1, currentPower, skip - 1, recharge)) {
+            return dp[index][skip][recharge] = 1;
+        }
+
+        // Option 2: Fight the current enemy
+        if (currentPower >= enemies[index]) {
+            float newPower = currentPower - enemies[index];
+
+            // Special case for regenerating enemies (index 2 and 6, i.e., k3 and k7)
+            if (index == 2 || index == 6) {
+                float regenPower = enemies[index] / 2;
+                if (newPower >= regenPower) {
+                    newPower -= regenPower;
+                } else {
+                    // If Abhimanyu loses to the regenerated enemy, try recharging if possible
+                    if (recharge > 0) {
+                        if (tryCrossing(index + 1, p - regenPower, skip, recharge - 1)) {
+                            return dp[index][skip][recharge] = 1;
+                        }
+                    }
+                    return dp[index][skip][recharge] = 0;  // Abhimanyu can't defeat the regenerated enemy
+                }
+            }
+
+            if (tryCrossing(index + 1, newPower, skip, recharge)) {
+                return dp[index][skip][recharge] = 1;
+            }
+        }
+
+        // Option 3: Recharge and try fighting the same enemy again
+        if (recharge > 0 && currentPower!=p) {
+            if (tryCrossing(index, p, skip, recharge - 1)) {
+                return dp[index][skip][recharge] = 1;
+            }
+        }
+
+        // If all options fail, return false
+        return dp[index][skip][recharge] = 0;
+    };
+
+    return tryCrossing(0, p, a, b);
+}
+
+int main() {
+    // Test Case 1
+    float p1 = 100.0;
+    vector<float> enemies1 = {20.5, 30.8, 50.2, 10.1, 40.6, 30.7, 60.4, 70.3, 80.9, 50.5, 90.7};
+    int a1 = 2, b1 = 2;
+    if (canAbhimanyuCrossChakravyuh(p1, enemies1, a1, b1)) {
+        cout << "Abhimanyu crosses the Chakravyuh successfully in Test Case 1.\n";
+    } else {
+        cout << "Abhimanyu fails in Test Case 1.\n";
+    }
+
+    // Test Case 2
+    float p2 = 150.0;
+    vector<float> enemies2 = {30.3, 40.5, 60.7, 20.2, 50.9, 40.4, 20.8, 10.1, 10.6, 60.3, 30.5};
+    int a2 = 1, b2 = 2;
+    if (canAbhimanyuCrossChakravyuh(p2, enemies2, a2, b2)) {
+        cout << "Abhimanyu crosses the Chakravyuh successfully in Test Case 2.\n";
+    } else {
+        cout << "Abhimanyu fails in Test Case 2.\n";
+    }
+
+    return 0;
+}
